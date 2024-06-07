@@ -9,7 +9,7 @@ const db = mysql.createConnection({
     host:'localhost',
     user:'root',
     password:'',
-    database: 'login'  
+    database: 'biblioteca'  
 })
 
 db.connect((error)=> {
@@ -27,10 +27,10 @@ app.get(["/", "/login"], (req, res) => { /* "["/", "/login"],"" faz com q ele v�
 })
 
 app.post("/login", (req, res) =>{
-    const username = req.body.username;
+    const username = req.body.nome;
     const password = req.body.password;
     
-    db.query('SELECT password FROM user WHERE username = ?;', [username], (error, results) => {
+    db.query('SELECT password FROM usuario WHERE nome = ?;', [username], (error, results) => {
             if (results.length > 0) {
                 const passwordBD = results[0].password;
                 if (password === passwordBD){
@@ -54,24 +54,26 @@ app.get("/cadastro", (req, res) => {
 });
 
 app.post("/cadastro", (req, res) => {
-    const username = req.body.username;
+
+    const username = req.body.nome;
     const password = req.body.password;
+    const email = req.body.email;
     const confirm = req.body.passwordConfirm
 
-    if (password === confirm){
-    db.query('INSERT INTO user (username, password) VALUES (?, ?);', [username, password], (error, results) => {
+      if (password === confirm){
+    db.query('INSERT INTO usuario (nome, email, password) VALUES (?, ?, ?);', [username, email, password], (error, results) => {
         if(error) {
             console.log("Erro ao realizar o cadastro", error)
-            res.status(500).send('Senha deve ser menor q 8');
+            res.status(500).send('Preencheu errado');
         return;
         }else {
             console.log("Usuário cadastrado com sucesso!")
             res.send('Usuario cadastrado com sucesso')
         } 
          })    
-         } 
+         }
 
-   /* db.query('INSERT INTO user (username, password) VALUES (?, ?);', [username, password], (error, results) => {
+  /* db.query('INSERT INTO user (username, password) VALUES (?, ?);', [username, password], (error, results) => {
        if (password > 8){
         console.log('Senha não pode ser maior que 8 dígitos', error);
         res.status(500).send('Max:8 caracteres');
@@ -88,7 +90,7 @@ app.post("/cadastro", (req, res) => {
        }
 
     }); */
-});
+}); 
 
 app.listen(port, ()=>{
     console.log(`Servidor rodando no endereço: https://localhost:${port}`)
